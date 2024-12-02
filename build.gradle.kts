@@ -1,6 +1,7 @@
 import org.gradle.configurationcache.extensions.capitalized
 import java.awt.GraphicsEnvironment
 import java.io.ByteArrayOutputStream
+import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
     application
@@ -77,6 +78,52 @@ val runAllBatch by tasks.register<DefaultTask>("runAllBatch") {
     group = alchemistGroup
     description = "Launches all experiments"
 }
+
+val pythonVirtualEnvironment = "env"
+
+val createVirtualEnv by tasks.register<Exec>("createVirtualEnv") {
+    group = alchemistGroup
+    description = "Creates a virtual environment for Python"
+    commandLine("python3", "-m", "venv", pythonVirtualEnvironment)
+}
+
+val createPyTorchNetworkFolder by tasks.register<Exec>("createPyTorchNetworkFolder") {
+    group = alchemistGroup
+    description = "Creates a folder for PyTorch networks"
+    commandLine("mkdir", "-p", "networks")
+}
+
+val installPythonDependencies by tasks.register<Exec>("installPythonDependencies") {
+    group = alchemistGroup
+    description = "Installs Python dependencies"
+    dependsOn(createVirtualEnv, createPyTorchNetworkFolder)
+    when (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        true -> commandLine("$pythonVirtualEnvironment\\Scripts\\pip", "install", "-r", "requirements.txt")
+        false -> commandLine("$pythonVirtualEnvironment/bin/pip", "install", "-r", "requirements.txt")
+    }
+}
+
+val buildCustomDependency by tasks.register<Exec>("buildCustomDependency") {
+    group = alchemistGroup
+    description = "Builds custom Python dependencies"
+    dependsOn(installPythonDependencies)
+    workingDir("python")
+    when (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        true -> commandLine("$pythonVirtualEnvironment\\Scripts\\python", "setup.py", "sdist", "bdist_wheel")
+        false -> commandLine("../$pythonVirtualEnvironment/bin/python3", "setup.py", "sdist", "bdist_wheel")
+    }
+}
+
+val installCustomDependency by tasks.register<Exec>("installCustomDependency") {
+    group = alchemistGroup
+    description = "Installs custom Python dependencies"
+    dependsOn(buildCustomDependency)
+    when (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        true -> commandLine("$pythonVirtualEnvironment\\Scripts\\pip", "install", "-e", "python")
+        false -> commandLine("$pythonVirtualEnvironment/bin/pip", "install", "-e", "python")
+    }
+}
+
 /*
  * Scan the folder with the simulation files, and create a task for each one of them.
  */
@@ -100,6 +147,9 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
             } else {
                 this.additionalConfiguration()
             }
+            if (System.getenv("CONTAINER") != "true") {
+                dependsOn(installCustomDependency)
+            }
         }
         val capitalizedName = it.nameWithoutExtension.capitalized()
         val graphic by basetask("run${capitalizedName}Graphic") {
@@ -115,17 +165,10 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
             description = "Launches batch experiments for $capitalizedName"
             maxHeapSize = "${minOf(heap.toInt(), Runtime.getRuntime().availableProcessors() * taskSize)}m"
             File("data").mkdirs()
-            args("--override",
-                """
-                    launcher: {
-                        parameters: {
-                            batch: [ seed, spacing, error ],
-                            showProgress: true,
-                            autoStart: true,
-                            parallelism: $threadCount,
-                        }
-                    }
-                """.trimIndent())
+            args(
+                "--verbosity",
+                "error"
+            )
         }
         runAllBatch.dependsOn(batch)
     }
