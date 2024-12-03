@@ -27,6 +27,13 @@ def hard_non_iid_mapping(areas: int, labels: int) -> np.ndarray:
         distribution[rows, elems] = 1
     return distribution
 
+
+def dirichlet_non_iid_mapping(areas: int, labels: int, beta: float) -> np.ndarray:
+    alpha = np.full(labels, beta)
+    sample = np.random.dirichlet(alpha, areas)
+    return sample
+
+
 def partitioning(distribution: np.ndarray, dataset: Dataset) -> dict[int, list[int]]:
     targets = dataset.targets
     areas = distribution.shape[0]
