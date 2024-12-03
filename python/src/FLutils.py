@@ -18,8 +18,11 @@ class DatasetSplit(Dataset):
         return torch.tensor(image), torch.tensor(label)
 
 
-def hard_non_iid_mapping(areas: int, labels: int) -> dict[int, list[int]]:
-    labels = np.arange(labels)
-    split_classes_per_area = np.array_split(labels, areas)
-    mapping_area_labels = {i: e.tolist() for i, e in enumerate(split_classes_per_area)}
-    return mapping_area_labels
+def hard_non_iid_mapping(areas: int, labels: int) -> np.ndarray:
+    labels_set = np.arange(labels)
+    split_classes_per_area = np.array_split(labels_set, areas)
+    distribution = np.zeros((areas, labels))
+    for i, elems in enumerate(split_classes_per_area):
+        rows = [i for _ in elems]
+        distribution[rows, elems] = 1
+    return distribution
