@@ -2,7 +2,7 @@ package it.unibo.alchemist
 
 import it.unibo.alchemist.boundary.swingui.effect.impl.AbstractDrawLayers
 import it.unibo.alchemist.boundary.ui.api.Wormhole2D
-import it.unibo.alchemist.model.layers.IdPhenomenaLayer
+import it.unibo.alchemist.model.layers.PhenomenaDistribution
 import it.unibo.alchemist.model.{Environment, Layer, Position2D}
 
 import java.awt.{Color, Graphics2D, Point}
@@ -29,8 +29,8 @@ class PhenomenaDistributionEffect extends AbstractDrawLayers {
     val stepY = (viewEndY - viewStartY) / 100
     val phenomenaDistributionLayer = toDraw
       .stream()
-      .filter(_.isInstanceOf[IdPhenomenaLayer[P]])
-      .map(_.asInstanceOf[IdPhenomenaLayer[P]])
+      .filter(_.isInstanceOf[PhenomenaDistribution[P]])
+      .map(_.asInstanceOf[PhenomenaDistribution[P]])
       .findFirst()
       .orElseThrow(() => new IllegalArgumentException("No phenomena distribution layer found"))
     for {
@@ -39,9 +39,11 @@ class PhenomenaDistributionEffect extends AbstractDrawLayers {
     } {
       val (i2, j2) = (i1 + stepX, j1 + stepY)
       val points = List(new Point(i1, j1), new Point(i1, j2), new Point(i2, j1), new Point(i2, j2))
-      val values = points.map(p => phenomenaDistributionLayer.getValue(wormhole.getEnvPoint(p)))
+      val values = points.map(p =>
+        phenomenaDistributionLayer.getValue(wormhole.getEnvPoint(p)).areaId.toFloat / phenomenaDistributionLayer.areas
+      )
       val average = values.max
-      val color = Color.getHSBColor(average.toFloat, 0.5f, 0.9f)
+      val color = Color.getHSBColor(average, 0.5f, 0.9f)
       val alphed = new Color(color.getRed, color.getGreen, color.getBlue, 128)
       graphics.setColor(alphed)
       graphics.fillRect(i1, j1, i2 - i1, j2 - j1)

@@ -12,6 +12,16 @@ variables:
   error: &error
     type: ArbitraryVariable
     parameters: [0.1, [0.1, 0.2]]
+  partitioning: &partitioning
+    language: scala
+    formula: |
+      import it.unibo.learning.model.Hard
+      Hard
+#  dataset: &dataset
+#    language: scala
+#    formula: |
+#      import it.unibo.interop.PythonModules._
+#      flUtils.get_dataset("MNIST")
 
 seeds:
   scenario: *seed
@@ -34,11 +44,8 @@ network-model:
 
 layers:
   - type: PhenomenaDistribution
-    parameters: [ 0, 0, 7, 8, 9]
+    parameters: [ 0, 0, 7, 8, 9, *partitioning, "MNIST"]
     molecule: Phenomena
-  - type: IdPhenomenaLayer
-    parameters: [Phenomena]
-    molecule: IdPhenomena
 
 deployments:
   type: Grid
