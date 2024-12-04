@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from torch.utils.data import Dataset
+from torchvision import datasets, transforms
 
 class DatasetSplit(Dataset):
     """An abstract Dataset class wrapped around Pytorch Dataset class.
@@ -52,3 +53,12 @@ def partitioning(distribution: np.ndarray, dataset: Dataset) -> dict[int, list[i
                 selected_indices.extend(target_indices[:selected_count].tolist())
         partitions[area] = selected_indices
     return partitions
+
+def get_dataset(name: str) -> Dataset:
+    transform = transforms.Compose([transforms.ToTensor()])
+    if name == 'MNIST':
+        dataset = datasets.MNIST(root='data', train=True, download=True, transform=transform)
+        return dataset
+
+def get_subset(dataset, indexes):
+    return (None, None)
