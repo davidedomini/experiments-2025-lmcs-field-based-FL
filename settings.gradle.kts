@@ -11,4 +11,4 @@ develocity {
     }
 }
 
-rootProject.name = "alchemist-experiments-bootstrap"
+rootProject.name = "experiments-2025-lmcs-field-based-federated-learning"
