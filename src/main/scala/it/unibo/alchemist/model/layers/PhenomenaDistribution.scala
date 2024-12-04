@@ -1,7 +1,10 @@
 package it.unibo.alchemist.model.layers
 
 import it.unibo.alchemist.model.{Environment, Layer, Position}
-import it.unibo.learning.model.Dataset
+import it.unibo.interop.PythonModules._
+import it.unibo.learning.model.{Dataset, Dirichlet, Hard, Partitioning}
+import me.shadaj.scalapy.py
+import me.shadaj.scalapy.py.{PyQuote, SeqConverters}
 
 class PhenomenaDistribution[P <: Position[P]](
   environment: Environment[_, P],
@@ -9,25 +12,40 @@ class PhenomenaDistribution[P <: Position[P]](
   private val yStart: Double,
   private val xEnd: Double,
   private val yEnd: Double,
-  val areas: Int
+  val areas: Int,
+  val partitioning: Partitioning,
+  val datasetName: String
 ) extends Layer[Dataset, P] {
+
+  private val dataset = getDataset(datasetName)
+
+  private lazy val classes: Int = dataset.classes.as[List[String]].size
 
   private lazy val subareas: List[(P, P)] = computeSubAreas(
     environment.makePosition(xStart, yStart),
     environment.makePosition(xEnd, yEnd)
   )
 
-  lazy val dataByPosition: Map[P, Int] = subareas
+  private val dataMapping = flUtils.partitioning(mapping, dataset).as[Map[Int, List[Int]]]
+
+  private lazy val subsets = dataMapping
+    .map { case (id, indexes) =>
+      val d = flUtils.get_subset(dataset, indexes.toPythonProxy)
+      id -> (py"$d[0]", py"$d[1]") // id -> train_data, validation_data
+    }
+
+  lazy val idByPosition: Map[P, Int] = subareas
     .zipWithIndex
     .map { case (p, index) => (center(p), index) }
     .toMap
 
   override def getValue(p: P): Dataset = {
-    val id = dataByPosition
+    val id = idByPosition
       .map { case (position, id) => position.distanceTo(p) -> id }
       .minBy { case (distance, _) => distance }
       ._2
-   Dataset(id, null, null)
+    val data = subsets.getOrElse(id, throw new IllegalStateException(s"Data for area $id not found"))
+   Dataset(id, data._1, data._2)
   }
 
   private def computeSubAreas(start: P, end: P): List[(P, P)] = {
@@ -55,5 +73,14 @@ class PhenomenaDistribution[P <: Position[P]](
     val yCenter = (p._1.getCoordinate(1) + p._2.getCoordinate(1)) / 2
     environment.makePosition(xCenter, yCenter)
   }
+
+  private def mapping: py.Dynamic = partitioning match {
+    case Hard => flUtils.hard_non_iid_mapping(areas, classes)
+    case Dirichlet(beta) => flUtils.dirichlet_non_iid_mapping(areas, classes, beta)
+  }
+
+  private def getDataset(name: String): py.Dynamic =
+    flUtils.get_dataset(name)
+
 
 }
