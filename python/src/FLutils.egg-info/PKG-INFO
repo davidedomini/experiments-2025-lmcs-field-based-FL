@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: FLutils
+Version: 0.0.1
+Summary: FL utils
+Author: Davide Dominii
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: torch
+Requires-Dist: torchvision
+
+FL utils - LMCS 2025 Experiments - Field-Based Coordination for Federated Learning
