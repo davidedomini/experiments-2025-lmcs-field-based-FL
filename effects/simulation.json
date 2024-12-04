@@ -1,6 +1,6 @@
 [
   {
-    "type": "class it.unibo.alchemist.boundary.gui.effects.SampleGeneralLayer",
+    "type": "class it.unibo.alchemist.boundary.gui.effects.PhenomenaDistributionEffect",
     "serialVersionUID": 1,
     "MinSamples": 10,
     "MaxSamples": 400,
