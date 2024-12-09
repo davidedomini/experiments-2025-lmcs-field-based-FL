@@ -7,21 +7,18 @@ variables:
     step: 1
     default: 0
   spacing: &spacing
-    type: ArbitraryVariable
-    parameters: [0.25, [0.25, 0.5]]
+    formula: 0.5
+  longSideNodes: &longSideNodes
+    formula: 5
+  shortSideNodes: &shortSideNodes
+    formula: 5
   error: &error
-    type: ArbitraryVariable
-    parameters: [0.1, [0.1, 0.2]]
+    formula: 0.1
   partitioning: &partitioning
     language: scala
     formula: |
       import it.unibo.learning.model.Hard
       Hard
-#  dataset: &dataset
-#    language: scala
-#    formula: |
-#      import it.unibo.interop.PythonModules._
-#      flUtils.get_dataset("MNIST")
 
 seeds:
   scenario: *seed
@@ -31,53 +28,21 @@ network-model:
   type: ConnectWithinDistance
   parameters: [1.5]
 
-#_gradient: &gradient
-#  - time-distribution: 1
-#    # Writing Protelis programs within a YAML file is a bad experience
-#    # (some characters need escaping, no syntax highlight, no code suggestions...)
-#    # We recommend using the Protelis Eclipse plugin to write your code, then
-#    # Loading the code as a module within Alchemist
-#    # In order to run this example, make sure that src/main/protelis is part of
-#    # your classpath (the Gradle script is already properly configured).
-#    program: org:protelis:tutorial:distanceTo
-#  - program: send
-
 layers:
   - type: PhenomenaDistribution
-    parameters: [ 0, 0, 7, 8, 9, *partitioning, "MNIST", 0.8, *seed]
+    parameters: [ 0, 0, *longSideNodes, *shortSideNodes, 9, *partitioning, "MNIST", 0.8, *seed]
     molecule: Phenomena
 
 deployments:
   type: Grid
-  parameters: [0, 0, 7, 8, *spacing, *spacing, *error, *error]
+  parameters: [0, 0, *longSideNodes, *shortSideNodes, *spacing, *spacing, *error, *error]
   contents:
     - in:
         type: Rectangle
         parameters: [-6, -6, 2, 2]
       molecule: source
       concentration: true
-#  programs: *gradient
 
-#export:
-##  - type: MongoDBExporter
-##    parameters:
-##      uri: mongodb://localhost:27017
-##      dbName: simulation
-##    data:
-##      - time
-##      - molecule: "org:protelis:tutorial:distanceTo"
-##        aggregators: [mean, min, max]
-##        value-filter: onlyfinite
-#  - type: CSVExporter
-#    parameters:
-#      fileNameRoot: simulation
-#      interval: 1
-#      exportPath: data
-#    data:
-#      - time
-#      - molecule: "org:protelis:tutorial:distanceTo"
-#        aggregators: [mean, min, max]
-#        value-filter: onlyfinite
 
 terminate:
   type: AfterTime
