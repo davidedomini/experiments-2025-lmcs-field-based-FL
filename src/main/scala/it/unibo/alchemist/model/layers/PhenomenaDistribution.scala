@@ -6,6 +6,8 @@ import it.unibo.learning.model.{Dataset, Dirichlet, Hard, Partitioning}
 import me.shadaj.scalapy.py
 import me.shadaj.scalapy.py.{PyQuote, SeqConverters}
 
+import scala.util.Random
+
 class PhenomenaDistribution[P <: Position[P]](
   environment: Environment[_, P],
   private val xStart: Double,
@@ -14,8 +16,12 @@ class PhenomenaDistribution[P <: Position[P]](
   private val yEnd: Double,
   val areas: Int,
   val partitioning: Partitioning,
-  val datasetName: String
+  val datasetName: String,
+  val trainFraction: Double,
+  val seed: Int
 ) extends Layer[Dataset, P] {
+
+  private val random = new Random(seed)
 
   private val dataset = getDataset(datasetName)
 
@@ -30,11 +36,16 @@ class PhenomenaDistribution[P <: Position[P]](
 
   private lazy val subsets = dataMapping
     .map { case (id, indexes) =>
-      val d = flUtils.get_subset(dataset, indexes.toPythonProxy)
-      id -> (py"$d[0]", py"$d[1]") // id -> train_data, validation_data
+      val trainSize = math.floor(indexes.size * trainFraction).toInt
+      val shuffledIndexes = random.shuffle(indexes)
+      val trainIndexes = shuffledIndexes.take(trainSize)
+      val validationIndexes = shuffledIndexes.takeRight(shuffledIndexes.size - trainSize)
+      id -> (trainIndexes, validationIndexes)
+//      val d = flUtils.get_subset(dataset, indexes.toPythonProxy)
+//      id -> (py"$d[0]", py"$d[1]") // id -> train_data, validation_data
     }
 
-  lazy val idByPosition: Map[P, Int] = subareas
+  private lazy val idByPosition: Map[P, Int] = subareas
     .zipWithIndex
     .map { case (p, index) => (center(p), index) }
     .toMap

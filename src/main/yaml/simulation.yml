@@ -44,7 +44,7 @@ network-model:
 
 layers:
   - type: PhenomenaDistribution
-    parameters: [ 0, 0, 7, 8, 9, *partitioning, "MNIST"]
+    parameters: [ 0, 0, 7, 8, 9, *partitioning, "MNIST", 0.8, *seed]
     molecule: Phenomena
 
 deployments:
