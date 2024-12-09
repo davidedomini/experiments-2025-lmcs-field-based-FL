@@ -1,5 +1,8 @@
 incarnation: scafi
 
+_constants:
+  retentionTime: &retentionTime 15.0
+
 variables:
   seed: &seed
     min: 0
@@ -8,12 +11,12 @@ variables:
     default: 0
   spacing: &spacing
     formula: 0.5
-  longSideNodes: &longSideNodes
-    formula: 5
-  shortSideNodes: &shortSideNodes
-    formula: 5
+  longSideNodes: &xNodes
+    formula: 3
+  shortSideNodes: &yNodes
+    formula: 4
   error: &error
-    formula: 0.1
+    formula: 0
   partitioning: &partitioning
     language: scala
     formula: |
@@ -30,18 +33,30 @@ network-model:
 
 layers:
   - type: PhenomenaDistribution
-    parameters: [ 0, 0, *longSideNodes, *shortSideNodes, 9, *partitioning, "MNIST", 0.8, *seed]
+    parameters: [ 0, 0, *xNodes, *yNodes, 9, *partitioning, "MNIST", 0.8, *seed]
     molecule: Phenomena
+
+_gradient: &gradient
+  - time-distribution:
+      type: DiracComb
+      parameters: [ 0.1, 1 ]
+    type: Event
+    actions:
+      - type: RunScafiProgram
+        parameters: [it.unibo.scafi.FBFLClient, *retentionTime]
+  - program: send
+
 
 deployments:
   type: Grid
-  parameters: [0, 0, *longSideNodes, *shortSideNodes, *spacing, *spacing, *error, *error]
+  parameters: [0, 0, *xNodes, *yNodes, *spacing, *spacing, *error, *error]
   contents:
     - in:
         type: Rectangle
         parameters: [-6, -6, 2, 2]
       molecule: source
       concentration: true
+  programs: *gradient
 
 
 terminate:
