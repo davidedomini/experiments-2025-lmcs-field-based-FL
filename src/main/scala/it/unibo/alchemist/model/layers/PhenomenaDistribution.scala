@@ -49,12 +49,16 @@ class PhenomenaDistribution[P <: Position[P]](
     .toMap
 
   override def getValue(p: P): Dataset = {
-    val id = idByPosition
-      .map { case (position, id) => position.distanceTo(p) -> id }
-      .minBy { case (distance, _) => distance }
-      ._2
+    val id = getAreaIdByPosition(p)
     val data = subsets.getOrElse(id, throw new IllegalStateException(s"Data for area $id not found"))
    Dataset(id, data._1, data._2)
+  }
+
+  def getAreaIdByPosition(p: P): Int = {
+    idByPosition
+      .map { case (position, id) => position.distanceTo(p) -> id}
+      .minBy { case (distance, _) => distance }
+      ._2
   }
 
   private def computeSubAreas(start: P, end: P): List[(P, P)] = {
