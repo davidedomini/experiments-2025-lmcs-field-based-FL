@@ -32,9 +32,9 @@ class PhenomenaToDataset[T, P <: Position[P]](
         .find {case (_, nodes) => nodes.contains(node) }
         .getOrElse(throw new IllegalStateException(s"Area id for node $node not found"))
         ._1
-      val neighs = idNodesMapping.getOrElse(areaId, throw new IllegalStateException(s"Number of devices ")).size
+      val neighs = idNodesMapping.getOrElse(areaId, throw new IllegalStateException(s"Nodes not found for area id $areaId")).size
       val idInArea = idNodesMapping
-        .getOrElse(areaId, throw new IllegalStateException(s"Number of devices "))
+        .getOrElse(areaId, throw new IllegalStateException(s"Nodes not found for area id $areaId"))
         .indexOf(node)
       node.setConcentration(new SimpleMolecule(Molecules.neighbors), neighs.asInstanceOf[T])
       node.setConcentration(new SimpleMolecule(Molecules.idInArea), idInArea.asInstanceOf[T])
