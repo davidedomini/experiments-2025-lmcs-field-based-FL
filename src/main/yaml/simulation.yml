@@ -46,6 +46,15 @@ _gradient: &gradient
         parameters: [it.unibo.scafi.FBFLClient, *retentionTime]
   - program: send
 
+environment:
+  type: Continuous2DEnvironment
+  parameters: [ ]
+  global-programs:
+    - time-distribution:
+        type: Trigger
+        parameters: [0]
+      type: PhenomenaToDataset
+      parameters: []
 
 deployments:
   type: Grid
