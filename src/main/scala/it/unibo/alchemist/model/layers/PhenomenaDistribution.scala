@@ -1,11 +1,9 @@
 package it.unibo.alchemist.model.layers
 
+import it.unibo.learning.model.{Dataset, Dirichlet, Hard, Partitioning}
 import it.unibo.alchemist.model.{Environment, Layer, Position}
 import it.unibo.interop.PythonModules._
-import it.unibo.learning.model.{Dataset, Dirichlet, Hard, Partitioning}
 import me.shadaj.scalapy.py
-import me.shadaj.scalapy.py.{PyQuote, SeqConverters}
-
 import scala.util.Random
 
 class PhenomenaDistribution[P <: Position[P]](
