@@ -1,23 +1,7 @@
 import torch
 import numpy as np
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Subset
 from torchvision import datasets, transforms
-
-class DatasetSplit(Dataset):
-    """An abstract Dataset class wrapped around Pytorch Dataset class.
-    """
-
-    def __init__(self, dataset, idxs):
-        self.dataset = dataset
-        self.idxs = [int(i) for i in idxs]
-
-    def __len__(self):
-        return len(self.idxs)
-
-    def __getitem__(self, item):
-        image, label = self.dataset[self.idxs[item]]
-        return torch.tensor(image), torch.tensor(label)
-
 
 def hard_non_iid_mapping(areas: int, labels: int) -> np.ndarray:
     labels_set = np.arange(labels)
@@ -60,5 +44,5 @@ def get_dataset(name: str) -> Dataset:
         dataset = datasets.MNIST(root='data', train=True, download=True, transform=transform)
         return dataset
 
-def get_subset(dataset, indexes):
-    return (None, None)
+def to_subset(dataset, indexes):
+    return Subset(dataset, indexes)
