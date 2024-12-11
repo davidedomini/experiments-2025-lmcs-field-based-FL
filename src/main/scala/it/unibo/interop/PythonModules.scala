@@ -4,6 +4,6 @@ import me.shadaj.scalapy.py
 
 object PythonModules {
 
-  val flUtils = py.Module("FLutils")
+  val flUtils: py.Module = py.Module("FLutils")
 
 }
