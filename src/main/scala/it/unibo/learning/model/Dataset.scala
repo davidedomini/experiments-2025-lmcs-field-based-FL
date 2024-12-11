@@ -5,5 +5,6 @@ import me.shadaj.scalapy.py
 case class Dataset(
   areaId: Int,
   trainingData: List[Int],
-  validationData: List[Int]
+  validationData: List[Int],
+  dataset: py.Dynamic
 )

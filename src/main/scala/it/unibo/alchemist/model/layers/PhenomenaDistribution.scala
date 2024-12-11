@@ -51,7 +51,7 @@ class PhenomenaDistribution[P <: Position[P]](
   override def getValue(p: P): Dataset = {
     val id = getAreaIdByPosition(p)
     val data = subsets.getOrElse(id, throw new IllegalStateException(s"Data for area $id not found"))
-   Dataset(id, data._1, data._2)
+   Dataset(id, data._1, data._2, dataset)
   }
 
   def getAreaIdByPosition(p: P): Int = {
