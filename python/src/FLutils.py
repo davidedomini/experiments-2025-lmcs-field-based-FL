@@ -46,3 +46,12 @@ def get_dataset(name: str) -> Dataset:
 
 def to_subset(dataset, indexes):
     return Subset(dataset, indexes)
+
+def training(model, training_data, validation_data, epochs, batch_size):
+    pass
+
+def average_models():
+    pass
+
+def seed_everything(seed):
+    pass
