@@ -43,7 +43,7 @@ _gradient: &gradient
     type: Event
     actions:
       - type: RunScafiProgram
-        parameters: [it.unibo.scafi.FBFLClient, *retentionTime]
+        parameters: [it.unibo.scafi.CentralizedClient, *retentionTime]
   - program: send
 
 environment:
