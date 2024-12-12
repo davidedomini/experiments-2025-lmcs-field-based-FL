@@ -123,9 +123,6 @@ def evaluate(model_weights, validation_data, batch_size, experiment):
     accuracy = correct / total
     return loss, accuracy
 
-def average_models():
-    pass
-
 def seed_everything(seed):
     pass
 
