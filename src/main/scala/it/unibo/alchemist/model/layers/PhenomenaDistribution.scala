@@ -1,9 +1,10 @@
 package it.unibo.alchemist.model.layers
 
-import it.unibo.learning.model.{Dataset, Dirichlet, Hard, Partitioning}
+import it.unibo.learning.model.{Dataset, Dirichlet, Hard, IID, Partitioning}
 import it.unibo.alchemist.model.{Environment, Layer, Position}
 import it.unibo.interop.PythonModules._
 import me.shadaj.scalapy.py
+
 import scala.util.Random
 
 class PhenomenaDistribution[P <: Position[P]](
@@ -88,6 +89,7 @@ class PhenomenaDistribution[P <: Position[P]](
   }
 
   private def mapping: py.Dynamic = partitioning match {
+    case IID => flUtils.iid_mapping(areas, classes)
     case Hard => flUtils.hard_non_iid_mapping(areas, classes)
     case Dirichlet(beta) => flUtils.dirichlet_non_iid_mapping(areas, classes, beta)
   }

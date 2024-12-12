@@ -57,6 +57,11 @@ def dirichlet_non_iid_mapping(areas: int, labels: int, beta: float) -> np.ndarra
     sample = np.random.dirichlet(alpha, areas)
     return sample
 
+def iid_mapping(areas: int, labels: int) -> np.ndarray:
+    percentage = 1 / labels
+    distribution = np.zeros((areas, labels))
+    distribution.fill(percentage)
+    return distribution
 
 def partitioning(distribution: np.ndarray, dataset: Dataset) -> dict[int, list[int]]:
     targets = dataset.targets
