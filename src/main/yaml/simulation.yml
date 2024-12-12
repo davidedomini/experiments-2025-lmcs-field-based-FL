@@ -22,6 +22,12 @@ variables:
     formula: |
       import it.unibo.learning.model.Hard
       Hard
+  experiment: &experiment
+    formula: "MNIST"
+  batchSize: &batchSize
+    formula: 32
+  epochs: &epochs
+    formula: 2
 
 seeds:
   scenario: *seed
@@ -33,13 +39,13 @@ network-model:
 
 layers:
   - type: PhenomenaDistribution
-    parameters: [ 0, 0, *xNodes, *yNodes, 9, *partitioning, "MNIST", 0.8, *seed]
+    parameters: [0, 0, *xNodes, *yNodes, 9, *partitioning, *experiment, 0.8, *seed]
     molecule: Phenomena
 
 _gradient: &gradient
   - time-distribution:
       type: DiracComb
-      parameters: [ 0.1, 1 ]
+      parameters: [ 0.2, 1 ]
     type: Event
     actions:
       - type: RunScafiProgram
@@ -55,19 +61,54 @@ environment:
         parameters: [0]
       type: PhenomenaToDataset
       parameters: []
+    - time-distribution:
+        type: Trigger
+        parameters: [ 0.1 ]
+      type: ModelAndSeedInitialization
+      parameters: [*seed, *experiment]
+    - time-distribution:
+        type: DiracComb
+        parameters: [ 0.3, 1 ]
+      type: CentralServerFL
+      parameters: [ ]
+
+monitors:
+  - type: it.unibo.alchemist.model.monitors.CentralizedTestSetEvaluation
+    parameters: [*seed, *epochs, *batchSize, *experiment]
 
 deployments:
   type: Grid
   parameters: [0, 0, *xNodes, *yNodes, *spacing, *spacing, *error, *error]
   contents:
-    - in:
-        type: Rectangle
-        parameters: [-6, -6, 2, 2]
-      molecule: source
-      concentration: true
+    - molecule: BatchSize
+      concentration: *batchSize
+    - molecule: Epochs
+      concentration: *epochs
+    - molecule: Seed
+      concentration: *seed
+    - molecule: Experiment
+      concentration: *experiment
   programs: *gradient
-
 
 terminate:
   type: AfterTime
-  parameters: 150
+  parameters: 50
+
+export:
+  - type: CSVExporter
+    parameters:
+      fileNameRoot: "experiment"
+      interval: 1.0
+      exportPath: "data"
+    data:
+      - time
+      - molecule: TrainingLoss
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyFinite
+        precision: 3
+      - molecule: ValidationLoss
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyfinite
+      - molecule: ValidationAccuracy
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyfinite
