@@ -74,7 +74,7 @@ environment:
 
 monitors:
   - type: it.unibo.alchemist.model.monitors.CentralizedTestSetEvaluation
-    parameters: [*seed, *epochs, *batchSize, *experiment]
+    parameters: [*batchSize, *experiment]
 
 deployments:
   type: Grid
