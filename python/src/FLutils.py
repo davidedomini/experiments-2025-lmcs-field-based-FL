@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, Subset
 from torchvision import datasets, transforms
 
 class NNMnist(nn.Module):
-    
+
     def __init__(self, h1=128):
         super().__init__()
         self.fc1 = torch.nn.Linear(28*28, h1)
@@ -15,6 +15,27 @@ class NNMnist(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
+
+
+def average_weights(models, weigths):
+    """ Averages the weights
+
+    Args:
+        models (list): a list of state_dict
+
+    Returns:
+        state_dict: the average state_dict
+    """
+    w_avg = copy.deepcopy(models[0])
+
+    for key in w_avg.keys():
+        w_avg[key] = torch.mul(w_avg[key], 0.0)
+    sum_weights = sum(weigths)
+    for key in w_avg.keys():
+        for i in range(0, len(models)):
+            w_avg[key] += models[i][key] * weigths[i]
+        w_avg[key] = torch.div(w_avg[key], sum_weights)
+    return w_avg
 
 
 def hard_non_iid_mapping(areas: int, labels: int) -> np.ndarray:
