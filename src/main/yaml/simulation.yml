@@ -28,7 +28,8 @@ variables:
     formula: 32
   epochs: &epochs
     formula: 2
-
+  areas: &areas
+    formula: 9
 seeds:
   scenario: *seed
   simulation: *seed
@@ -39,7 +40,7 @@ network-model:
 
 layers:
   - type: PhenomenaDistribution
-    parameters: [0, 0, *xNodes, *yNodes, 9, *partitioning, *experiment, 0.8, *seed]
+    parameters: [0, 0, *xNodes, *yNodes, *areas, *partitioning, *experiment, 0.8, *seed]
     molecule: Phenomena
 
 _gradient: &gradient
@@ -74,7 +75,7 @@ environment:
 
 monitors:
   - type: it.unibo.alchemist.model.monitors.CentralizedTestSetEvaluation
-    parameters: [*batchSize, *experiment]
+    parameters: [*batchSize, *experiment, *areas, *seed]
 
 deployments:
   type: Grid
