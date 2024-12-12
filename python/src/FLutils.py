@@ -1,7 +1,9 @@
 import torch
 import numpy as np
-from torch.utils.data import Dataset, Subset
+from torch import nn
+import torch.nn.functional as F
 from torchvision import datasets, transforms
+from torch.utils.data import Dataset, Subset, DataLoader
 
 class NNMnist(nn.Module):
 
@@ -82,7 +84,27 @@ def get_dataset(name: str, train: bool = True) -> Dataset:
 def to_subset(dataset, indexes):
     return Subset(dataset, indexes)
 
-def training(model, training_data, validation_data, epochs, batch_size):
+def training(model_weights, training_data, epochs, batch_size, experiment):
+    model = instantiate_model(model_weights, experiment)
+    criterion = nn.NLLLoss()
+    model.train()
+    epoch_loss = []
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
+    data_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
+    for _ in range(epochs):
+        batch_loss = []
+        for batch_index, (images, labels) in enumerate(data_loader):
+            model.zero_grad()
+            log_probs = model(images)
+            loss = criterion(log_probs, labels)
+            loss.backward()
+            optimizer.step()
+            batch_loss.append(loss.item())
+        mean_epoch_loss = sum(batch_loss) / len(batch_loss)
+        epoch_loss.append(mean_epoch_loss)
+    return model.state_dict(), sum(epoch_loss) / len(epoch_loss)
+
+def evaluate(model, validationData, batchSize):
     pass
 
 def average_models():
@@ -90,3 +112,11 @@ def average_models():
 
 def seed_everything(seed):
     pass
+
+def instantiate_model(model_weights, experiment):
+    if experiment == 'MNIST':
+        model = NNMnist()
+        model.load_state_dict(model_weights)
+        return model
+    else:
+        raise Exception(f'Wrong experiment name ({experiment})! Please check :)')

@@ -24,16 +24,18 @@ class CentralizedClient extends
   private lazy val validationData = flUtils.to_subset(data.dataset, validationDataIndexes.toPythonProxy)
   private lazy val epochs = sense[Int](Molecules.epochs)
   private lazy val batchSize = sense[Int](Molecules.batchSize)
+  private lazy val experiment = sense[String](Molecules.experiment)
 
   override def main(): Any = {
 
     val globalModel = sense[py.Dynamic](Molecules.globalModel)
 
-    val trainingResult = flUtils.training(globalModel, trainingData, validationData, epochs, batchSize)
+    val trainingResult = flUtils.training(globalModel, trainingData, epochs, batchSize, experiment)
     val localModel = py"$trainingResult[0]"
-    val trainingLoss = py"$trainingResult[1]"
-    val validationLoss = py"$trainingResult[2]"
-    val validationAccuracy = py"$trainingResult[3]"
+    val trainingLoss = py"$trainingResult[1]".as[Double]
+    val validationResults = flUtils.evaluate(globalModel, validationData, batchSize)
+    val validationLoss = py"$validationResults[0]".as[Double]
+    val validationAccuracy = py"$validationResults[1]".as[Double]
 
     node.put(Molecules.trainingLoss, trainingLoss)
     node.put(Molecules.validationLoss, validationLoss)

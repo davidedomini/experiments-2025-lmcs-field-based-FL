@@ -13,5 +13,5 @@ object Molecules {
   val trainingLoss = "TrainingLoss"
   val validationLoss = "ValidationLoss"
   val validationAccuracy = "ValidationAccuracy"
-
+  val experiment = "Experiment"
 }
