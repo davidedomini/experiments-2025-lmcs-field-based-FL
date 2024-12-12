@@ -1,4 +1,5 @@
 import torch
+import random
 import numpy as np
 from torch import nn
 import torch.nn.functional as F
@@ -124,12 +125,17 @@ def evaluate(model_weights, validation_data, batch_size, experiment):
     return loss, accuracy
 
 def seed_everything(seed):
-    pass
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.cuda.manual_seed(seed)
 
-def instantiate_model(model_weights, experiment):
+def instantiate_model(model_weights, experiment: str, from_weights: bool = True):
     if experiment == 'MNIST':
         model = NNMnist()
-        model.load_state_dict(model_weights)
+        if from_weights:
+            model.load_state_dict(model_weights)
         return model
     else:
         raise Exception(f'Wrong experiment name ({experiment})! Please check :)')
