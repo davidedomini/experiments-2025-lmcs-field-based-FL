@@ -9,6 +9,7 @@ import it.unibo.alchemist.boundary.OutputMonitor
 import it.unibo.interop.PythonModules.flUtils
 import me.shadaj.scalapy.py.PyQuote
 import it.unibo.scafi.Molecules
+import me.shadaj.scalapy.py
 
 class CentralizedTestSetEvaluation[P <: Position[P]](
   batchSize: Int,
@@ -24,6 +25,7 @@ class CentralizedTestSetEvaluation[P <: Position[P]](
       .toList
       .head
       .getConcentration(new SimpleMolecule(Molecules.globalModel))
+      .asInstanceOf[py.Dynamic]
     val dataset = flUtils.get_dataset(experiment, false)
     val results = flUtils.evaluate(model, dataset, batchSize, experiment)
     val testAccuracy = py"$results[1]".as[Double]

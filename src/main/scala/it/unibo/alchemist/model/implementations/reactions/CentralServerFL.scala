@@ -18,7 +18,7 @@ class CentralServerFL [T, P <: Position[P]](
       .map { node => node.getConcentration(new SimpleMolecule(Molecules.localModel)) }
       .map { model => model.asInstanceOf[py.Dynamic]}
 
-    val globalModel = flUtils.average_weights(models.toPythonProxy, List.fill(models.length)(1.0))
+    val globalModel = flUtils.average_weights(models.toPythonProxy, List.fill(models.length)(1.0).toPythonProxy)
 
     nodes.foreach { node =>
       node.setConcentration(new SimpleMolecule(Molecules.globalModel), globalModel.asInstanceOf[T])
