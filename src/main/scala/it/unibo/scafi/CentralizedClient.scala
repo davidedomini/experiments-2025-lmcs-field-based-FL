@@ -33,7 +33,7 @@ class CentralizedClient extends
     val trainingResult = flUtils.training(globalModel, trainingData, epochs, batchSize, experiment)
     val localModel = py"$trainingResult[0]"
     val trainingLoss = py"$trainingResult[1]".as[Double]
-    val validationResults = flUtils.evaluate(globalModel, validationData, batchSize)
+    val validationResults = flUtils.evaluate(globalModel, validationData, batchSize, experiment)
     val validationLoss = py"$validationResults[0]".as[Double]
     val validationAccuracy = py"$validationResults[1]".as[Double]
 

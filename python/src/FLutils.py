@@ -104,8 +104,24 @@ def training(model_weights, training_data, epochs, batch_size, experiment):
         epoch_loss.append(mean_epoch_loss)
     return model.state_dict(), sum(epoch_loss) / len(epoch_loss)
 
-def evaluate(model, validationData, batchSize):
-    pass
+def evaluate(model_weights, validation_data, batch_size, experiment):
+    model = instantiate_model(model_weights, experiment)
+    criterion = nn.NLLLoss()
+    model.eval()
+    loss, total, correct = 0.0, 0.0, 0.0
+    data_loader = DataLoader(validation_data, batch_size=batch_size, shuffle=False)
+    for batch_index, (images, labels) in enumerate(data_loader):
+        outputs = model(images)
+        batch_loss = criterion(outputs, labels)
+        loss += batch_loss.item()
+
+        _, pred_labels = torch.max(outputs, 1)
+        pred_labels = pred_labels.view(-1)
+        correct += torch.sum(torch.eq(pred_labels, labels)).item()
+        total += len(labels)
+
+    accuracy = correct / total
+    return loss, accuracy
 
 def average_models():
     pass
