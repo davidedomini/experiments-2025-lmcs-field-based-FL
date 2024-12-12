@@ -3,6 +3,20 @@ import numpy as np
 from torch.utils.data import Dataset, Subset
 from torchvision import datasets, transforms
 
+class NNMnist(nn.Module):
+    
+    def __init__(self, h1=128):
+        super().__init__()
+        self.fc1 = torch.nn.Linear(28*28, h1)
+        self.fc2 = torch.nn.Linear(h1, 27)
+
+    def forward(self, x):
+        x = x.view(-1, 28 * 28)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return F.log_softmax(x, dim=1)
+
+
 def hard_non_iid_mapping(areas: int, labels: int) -> np.ndarray:
     labels_set = np.arange(labels)
     split_classes_per_area = np.array_split(labels_set, areas)
