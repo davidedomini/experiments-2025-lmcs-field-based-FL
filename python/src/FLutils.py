@@ -73,10 +73,10 @@ def partitioning(distribution: np.ndarray, dataset: Dataset) -> dict[int, list[i
         partitions[area] = selected_indices
     return partitions
 
-def get_dataset(name: str) -> Dataset:
+def get_dataset(name: str, train: bool = True) -> Dataset:
     transform = transforms.Compose([transforms.ToTensor()])
     if name == 'MNIST':
-        dataset = datasets.MNIST(root='data', train=True, download=True, transform=transform)
+        dataset = datasets.MNIST(root='data', train=train, download=True, transform=transform)
         return dataset
 
 def to_subset(dataset, indexes):
