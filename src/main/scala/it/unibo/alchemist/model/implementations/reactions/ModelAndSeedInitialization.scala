@@ -4,6 +4,7 @@ import it.unibo.alchemist.model.{Environment, Position, TimeDistribution}
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.interop.PythonModules._
 import it.unibo.scafi.Molecules
+import me.shadaj.scalapy.py.SeqConverters
 
 
 class ModelAndSeedInitialization[T, P <: Position[P]](
@@ -16,9 +17,8 @@ class ModelAndSeedInitialization[T, P <: Position[P]](
   override protected def executeBeforeUpdateDistribution(): Unit = {
     flUtils.seed_everything(seed)
     val model = flUtils
-      .instantiate_model(null, experiment, false)
+      .instantiate_model(List.empty[Int].toPythonProxy, experiment, false)
       .state_dict()
-    println(model)
     nodes.foreach { node =>
       node.setConcentration(new SimpleMolecule(Molecules.globalModel), model.asInstanceOf[T])
     }
