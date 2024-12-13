@@ -14,4 +14,7 @@ object Molecules {
   val validationLoss = "ValidationLoss"
   val validationAccuracy = "ValidationAccuracy"
   val experiment = "Experiment"
+  val isAggregator = "IsAggregator"
+  val federation = "Federation"
+
 }
