@@ -28,13 +28,13 @@ variables:
     language: scala
     formula: > 
       s""" "${experiment.toString}" """
-
   batchSize: &batchSize
     formula: 32
   epochs: &epochs
     formula: 2
   areas: &areas
     formula: 9
+    
 seeds:
   scenario: *seed
   simulation: *seed
