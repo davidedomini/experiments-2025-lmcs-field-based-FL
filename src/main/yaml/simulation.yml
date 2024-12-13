@@ -34,7 +34,7 @@ variables:
     formula: 2
   areas: &areas
     formula: 9
-    
+
 seeds:
   scenario: *seed
   simulation: *seed
@@ -80,7 +80,7 @@ environment:
 
 monitors:
   - type: it.unibo.alchemist.model.monitors.CentralizedTestSetEvaluation
-    parameters: []
+    parameters: [*batchSize, *experiment, *areas, *seed]
 
 deployments:
   type: Grid
