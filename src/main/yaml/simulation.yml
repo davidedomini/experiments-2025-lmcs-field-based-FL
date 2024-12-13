@@ -23,7 +23,12 @@ variables:
       import it.unibo.learning.model.Hard
       Hard
   experiment: &experiment
-    formula: "MNIST"
+    formula: "\"MNIST\""
+  experimentMolecule: &experimentMolecule
+    language: scala
+    formula: > 
+      s""" "${experiment.toString}" """
+
   batchSize: &batchSize
     formula: 32
   epochs: &epochs
@@ -75,7 +80,7 @@ environment:
 
 monitors:
   - type: it.unibo.alchemist.model.monitors.CentralizedTestSetEvaluation
-    parameters: [*batchSize, *experiment, *areas, *seed]
+    parameters: []
 
 deployments:
   type: Grid
@@ -88,7 +93,7 @@ deployments:
     - molecule: Seed
       concentration: *seed
     - molecule: Experiment
-      concentration: *experiment
+      concentration: *experimentMolecule
   programs: *gradient
 
 terminate:
