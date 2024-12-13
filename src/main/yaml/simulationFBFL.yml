@@ -1,0 +1,135 @@
+incarnation: scafi
+
+_constants:
+  retentionTime: &retentionTime 15.0
+
+variables:
+  seed: &seed
+    min: 0
+    max: 1
+    step: 1
+    default: 0
+  spacing: &spacing
+    formula: 0.5
+  longSideNodes: &xNodes
+    formula: 3
+  shortSideNodes: &yNodes
+    formula: 4
+  error: &error
+    formula: 0
+  partitioning: &partitioning
+    language: scala
+    formula: |
+      import it.unibo.learning.model.Hard
+      Hard
+  experiment: &experiment
+    formula: "\"MNIST\""
+  experimentMolecule: &experimentMolecule
+    language: scala
+    formula: >
+      s""" "${experiment.toString}" """
+  batchSize: &batchSize
+    formula: 32
+  epochs: &epochs
+    formula: 2
+  areas: &areas
+    formula: 4
+
+seeds:
+  scenario: *seed
+  simulation: *seed
+
+network-model:
+  type: ConnectWithinDistance
+  parameters: [7.5]
+
+layers:
+  - type: PhenomenaDistribution
+    parameters: [0, 0, *xNodes, *yNodes, *areas, *partitioning, *experiment, 0.8, *seed]
+    molecule: Phenomena
+
+_gradient: &gradient
+  - time-distribution:
+      type: DiracComb
+      parameters: [ 0.2, 1 ]
+    type: Event
+    actions:
+      - type: RunScafiProgram
+        parameters: [it.unibo.scafi.FBFLClient, *retentionTime]
+  - program: send
+
+environment:
+  type: Continuous2DEnvironment
+  parameters: [ ]
+  global-programs:
+    - time-distribution:
+        type: Trigger
+        parameters: [0]
+      type: PhenomenaToDataset
+      parameters: []
+    - time-distribution:
+        type: Trigger
+        parameters: [ 0.1 ]
+      type: ModelAndSeedInitialization
+      parameters: [*seed, *experiment]
+#    - time-distribution:
+#        type: DiracComb
+#        parameters: [ 0.3, 1 ]
+#      type: CentralServerFL
+#      parameters: [ ]
+
+monitors:
+  - type: it.unibo.alchemist.model.monitors.CentralizedTestSetEvaluation
+    parameters: [*batchSize, *experiment, *areas, *seed]
+
+_molecules: &molecules
+  - molecule: BatchSize
+    concentration: *batchSize
+  - molecule: Epochs
+    concentration: *epochs
+  - molecule: Seed
+    concentration: *seed
+  - molecule: Experiment
+    concentration: *experimentMolecule
+
+
+deployments:
+  - type: Grid # Lower Left
+    parameters: [-4, -1, -2, 1, *spacing, *spacing, *error, *error]
+    contents: *molecules
+    programs: *gradient
+  - type: Grid # Upper Right
+    parameters: [ 4, 4, 5, 6, *spacing, *spacing, *error, *error ]
+    contents: *molecules
+    programs: *gradient
+  - type: Grid # Lower Left
+    parameters: [ 4, -1, 6, 0, *spacing, *spacing, *error, *error ]
+    contents: *molecules
+    programs: *gradient
+  - type: Grid # Upper Left
+    parameters: [ -4, 4, -2, 6, *spacing, *spacing, *error, *error ]
+    contents: *molecules
+    programs: *gradient
+
+terminate:
+  type: AfterTime
+  parameters: 50
+
+export:
+  - type: CSVExporter
+    parameters:
+      fileNameRoot: "experiment"
+      interval: 1.0
+      exportPath: "data"
+    data:
+      - time
+      - molecule: TrainingLoss
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyFinite
+        precision: 3
+      - molecule: ValidationLoss
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyfinite
+      - molecule: ValidationAccuracy
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyfinite
