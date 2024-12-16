@@ -32,8 +32,9 @@ class FBFLClient
 
   override def main(): Unit = {
 
-    val aggregators = S(radius, nbrRange)
     rep((init, 0)){ case (localModel, t) =>
+
+      val aggregators = S(radius, nbrRange)
 
       // Local Training
       val tick = t + 1
@@ -49,6 +50,8 @@ class FBFLClient
       node.put(Molecules.validationLoss, validationLoss)
       node.put(Molecules.validationAccuracy, validationAccuracy)
       node.put(Molecules.isAggregator, aggregators)
+      node.put(Molecules.localModel, localModel)
+      node.put(Molecules.areaId, data.areaId)
 
       // SCR Updates
       val potential = classicGradient(aggregators)
