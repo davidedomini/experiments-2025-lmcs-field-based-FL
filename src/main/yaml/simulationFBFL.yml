@@ -79,8 +79,8 @@ environment:
       parameters: [ *seed, *experiment ]
 
 monitors:
-  - type: it.unibo.alchemist.model.monitors.CentralizedTestSetEvaluation
-    parameters: [*batchSize, *experiment, *areas, *seed]
+  - type: it.unibo.alchemist.model.monitors.DecentralizedTestSetEvaluation
+    parameters: [*batchSize, *experiment, *areas, *seed, *partitioning]
 
 _molecules: &molecules
   - molecule: BatchSize
@@ -113,7 +113,7 @@ deployments:
 
 terminate:
   type: AfterTime
-  parameters: 50
+  parameters: 20
 
 export:
   - type: CSVExporter

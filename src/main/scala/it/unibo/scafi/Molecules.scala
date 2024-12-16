@@ -16,5 +16,6 @@ object Molecules {
   val experiment = "Experiment"
   val isAggregator = "IsAggregator"
   val federation = "Federation"
+  val areaId = "AreaId"
 
 }
