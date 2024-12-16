@@ -1,7 +1,7 @@
 incarnation: scafi
 
 _constants:
-  retentionTime: &retentionTime 15.0
+  retentionTime: &retentionTime 2.0
 
 variables:
   seed: &seed
@@ -34,6 +34,8 @@ variables:
     formula: 2
   areas: &areas
     formula: 4
+#  resilience: &resilience
+#    formula: true
 
 seeds:
   scenario: *seed
@@ -77,6 +79,11 @@ environment:
         parameters: [ 0.3, 1 ]
       type: CheckTheLeader
       parameters: [ *seed, *experiment ]
+    - time-distribution:
+        type: Trigger
+        parameters: [ 5.5 ]
+      type: KillRandomLeader
+      parameters: [ *seed, true ]
 
 monitors:
   - type: it.unibo.alchemist.model.monitors.DecentralizedTestSetEvaluation
@@ -91,7 +98,6 @@ _molecules: &molecules
     concentration: *seed
   - molecule: Experiment
     concentration: *experimentMolecule
-
 
 deployments:
   - type: Grid # Lower Left
@@ -113,7 +119,7 @@ deployments:
 
 terminate:
   type: AfterTime
-  parameters: 20
+  parameters: 30
 
 export:
   - type: CSVExporter
