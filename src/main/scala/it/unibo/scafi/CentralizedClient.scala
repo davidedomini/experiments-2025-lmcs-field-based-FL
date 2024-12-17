@@ -25,6 +25,7 @@ class CentralizedClient extends
   private lazy val epochs = sense[Int](Molecules.epochs)
   private lazy val batchSize = sense[Int](Molecules.batchSize)
   private lazy val experiment = sense[String](Molecules.experiment)
+  private lazy val proximalTerm = sense[Boolean](Molecules.proximalTerm)
 
   override def main(): Any = {
 

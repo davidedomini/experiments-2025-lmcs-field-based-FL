@@ -34,6 +34,10 @@ variables:
     formula: 2
   areas: &areas
     formula: 9
+  proximalTerm: &proximalTerm
+    language: scala
+    formula: |
+      true
 
 seeds:
   scenario: *seed
@@ -94,16 +98,18 @@ deployments:
       concentration: *seed
     - molecule: Experiment
       concentration: *experimentMolecule
+    - molecule: ProximalTerm
+      concentration: *proximalTerm
   programs: *gradient
 
 terminate:
   type: AfterTime
-  parameters: 50
+  parameters: 30
 
 export:
   - type: CSVExporter
     parameters:
-      fileNameRoot: "experiment"
+      fileNameRoot: "experiment-centralized-non-iid-hard"
       interval: 1.0
       exportPath: "data"
     data:

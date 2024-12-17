@@ -17,5 +17,6 @@ object Molecules {
   val isAggregator = "IsAggregator"
   val federation = "Federation"
   val areaId = "AreaId"
+  val proximalTerm = "ProximalTerm"
 
 }

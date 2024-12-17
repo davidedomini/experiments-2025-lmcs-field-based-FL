@@ -91,8 +91,9 @@ def get_dataset(name: str, train: bool = True) -> Dataset:
 def to_subset(dataset, indexes):
     return Subset(dataset, indexes)
 
-def training(model_weights, training_data, epochs, batch_size, experiment):
+def training(model_weights, training_data, epochs, batch_size, experiment, fed_proxy = False):
     model = instantiate_model(model_weights, experiment)
+    global_weights = copy.deepcopy(list(model.parameters()))
     criterion = nn.NLLLoss()
     model.train()
     epoch_loss = []
@@ -104,6 +105,15 @@ def training(model_weights, training_data, epochs, batch_size, experiment):
             model.zero_grad()
             log_probs = model(images)
             loss = criterion(log_probs, labels)
+            optimizer.zero_grad()
+
+            if fed_proxy:
+                prox_term = 0.0
+                mu = 0.1
+                for p_i, param in enumerate(model.parameters()):
+                    prox_term += (mu / 2) * toch.norm((param - global_weights[p_i])) ** 2
+                loss += prox_term
+
             loss.backward()
             optimizer.step()
             batch_loss.append(loss.item())
