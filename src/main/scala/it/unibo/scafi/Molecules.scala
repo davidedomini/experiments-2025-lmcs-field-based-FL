@@ -18,5 +18,8 @@ object Molecules {
   val federation = "Federation"
   val areaId = "AreaId"
   val proximalTerm = "ProximalTerm"
+  val tau = "Tau"
+  val normGrad = "NormGrad"
+  val nData = "NData"
 
 }

@@ -155,3 +155,52 @@ def instantiate_model(model_weights, experiment: str, from_weights: bool = True)
         return model
     else:
         raise Exception(f'Wrong experiment name ({experiment})! Please check :)')
+
+def training_fednova(model_weights, training_data, epochs, batch_size, experiment):
+    model = instantiate_model(model_weights, experiment)
+    global_weights = copy.deepcopy(model.state_dict())
+    criterion = nn.NLLLoss()
+    model.train()
+    epoch_loss = []
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
+    data_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
+    tau = 0
+    rho = 0.9
+    for _ in range(epochs):
+        batch_loss = []
+        for batch_index, (images, labels) in enumerate(data_loader):
+            model.zero_grad()
+            log_probs = model(images)
+            loss = criterion(log_probs, labels)
+            tau = tau + 1
+            loss.backward()
+            optimizer.step()
+            batch_loss.append(loss.item())
+        mean_epoch_loss = sum(batch_loss) / len(batch_loss)
+        epoch_loss.append(mean_epoch_loss)
+    coeff = (tau - rho * (1 - pow(rho, tau)) / (1 - rho)) / (1 - rho)
+    state_dict = model.state_dict()
+    norm_grad = copy.deepcopy(global_weights)
+    for key in norm_grad:
+        norm_grad[key] = torch.div(global_weights[key] - state_dict[key], coeff)
+
+    return model.state_dict(), sum(epoch_loss) / len(epoch_loss), loss.detach().cpu().numpy(), coeff, norm_grad
+
+def aggregate_fed_nova(model, client_state, client_n_data, client_coeff, client_norm_grad, n_clients):
+    nova_model_state = copy.deepcopy(model)
+
+    coeff = 0.0
+    n_data = sum(client_n_data)
+
+    for client in range(n_clients):
+        coeff = coeff + client_coeff[client] * client_n_data[client] / n_data
+        for key in client_state[client]:
+            if client == 0:
+                nova_model_state[key] = client_norm_grad[client][key] * client_n_data[client]  / n_data
+            else:
+                nova_model_state[key] = nova_model_state[key] * client_norm_grad[client][key] * client_n_data[client]  / n_data
+
+    for key in model:
+        model[key] -= coeff * nova_model_state[key] # BUG -- here nova_model_state is all 0
+
+    return model
