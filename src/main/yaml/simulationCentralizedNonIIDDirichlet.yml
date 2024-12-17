@@ -103,7 +103,7 @@ terminate:
 export:
   - type: CSVExporter
     parameters:
-      fileNameRoot: "experiment"
+      fileNameRoot: "experiment-centralized-dirichlet"
       interval: 1.0
       exportPath: "data"
     data:
