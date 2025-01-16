@@ -22,4 +22,7 @@ object Molecules {
   val normGrad = "NormGrad"
   val nData = "NData"
 
+  val serverControlVariate = "ServerControlVariate"
+  val clientControlVariate = "ClientControlVariate"
+
 }
