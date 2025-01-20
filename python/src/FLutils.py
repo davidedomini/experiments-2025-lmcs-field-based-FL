@@ -80,7 +80,7 @@ def partitioning(distribution: np.ndarray, dataset: Dataset) -> dict[int, list[i
             partitions[area].extend(selected_indices)
     return partitions
 
-def dirichlet_partitioning(data: Dataset, areas: int, beta: float) -> dict[int, list[int]]:
+def dirichlet_partitioning(dataset: Dataset, areas: int, beta: float) -> dict[int, list[int]]:
     # Implemented as in: https://proceedings.mlr.press/v97/yurochkin19a.html
     min_size = 0
     # indices = data.indices
