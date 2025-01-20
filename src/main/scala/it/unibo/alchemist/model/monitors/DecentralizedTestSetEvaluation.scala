@@ -59,7 +59,7 @@ class DecentralizedTestSetEvaluation [P <: Position[P]](
       val mapping = flUtils.hard_non_iid_mapping(areas, classes)
       flUtils.partioniong(mapping, dataset)
     case Dirichlet(beta) =>
-      flUtils.dirichlet_partitioning(areas, classes, beta) // todo check params
+      flUtils.dirichlet_partitioning(dataset, areas, beta)
   }
 
 }

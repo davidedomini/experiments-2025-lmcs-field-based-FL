@@ -87,7 +87,7 @@ class PhenomenaDistribution[P <: Position[P]](
     val yCenter = (p._1.getCoordinate(1) + p._2.getCoordinate(1)) / 2
     environment.makePosition(xCenter, yCenter)
   }
-  
+
   private def partitions: py.Dynamic = partitioning match {
     case IID =>
       val mapping = flUtils.iid_mapping(areas, classes)
@@ -96,7 +96,7 @@ class PhenomenaDistribution[P <: Position[P]](
       val mapping = flUtils.hard_non_iid_mapping(areas, classes)
       flUtils.partioniong(mapping, dataset)
     case Dirichlet(beta) =>
-      flUtils.dirichlet_partitioning(areas, classes, beta)
+      flUtils.dirichlet_partitioning(dataset, areas, beta)
   }
 
   private def getDataset(name: String): py.Dynamic =
