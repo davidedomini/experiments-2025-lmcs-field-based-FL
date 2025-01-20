@@ -31,7 +31,7 @@ class PhenomenaDistribution[P <: Position[P]](
     environment.makePosition(xEnd, yEnd)
   )
 
-  private val dataMapping = flUtils.partitioning(mapping, dataset).as[Map[Int, List[Int]]]
+  private val dataMapping = partitions.as[Map[Int, List[Int]]]
 
   private lazy val subsets = dataMapping
     .map { case (id, indexes) =>
@@ -87,15 +87,19 @@ class PhenomenaDistribution[P <: Position[P]](
     val yCenter = (p._1.getCoordinate(1) + p._2.getCoordinate(1)) / 2
     environment.makePosition(xCenter, yCenter)
   }
-
-  private def mapping: py.Dynamic = partitioning match {
-    case IID => flUtils.iid_mapping(areas, classes)
-    case Hard => flUtils.hard_non_iid_mapping(areas, classes)
-    case Dirichlet(beta) => flUtils.dirichlet_non_iid_mapping(areas, classes, beta)
+  
+  private def partitions: py.Dynamic = partitioning match {
+    case IID =>
+      val mapping = flUtils.iid_mapping(areas, classes)
+      flUtils.partioniong(mapping, dataset)
+    case Hard =>
+      val mapping = flUtils.hard_non_iid_mapping(areas, classes)
+      flUtils.partioniong(mapping, dataset)
+    case Dirichlet(beta) =>
+      flUtils.dirichlet_partitioning(areas, classes, beta)
   }
 
   private def getDataset(name: String): py.Dynamic =
     flUtils.get_dataset(name)
-
 
 }

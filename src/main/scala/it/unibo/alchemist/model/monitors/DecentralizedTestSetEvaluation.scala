@@ -21,7 +21,7 @@ class DecentralizedTestSetEvaluation [P <: Position[P]](
 
   private val dataset = flUtils.get_dataset(experiment, false)
   private val classes = dataset.classes.as[List[String]].size
-  private val dataMapping = flUtils.partitioning(mapping, dataset).as[Map[Int, List[Int]]]
+  private val dataMapping = partitions.as[Map[Int, List[Int]]]
 
   override def finished(environment: Environment[Any, P], time: Time, step: Long): Unit = {
     val leaders = findLeaders(environment)
@@ -51,10 +51,15 @@ class DecentralizedTestSetEvaluation [P <: Position[P]](
     .toList
     .filter(_.getConcentration(new SimpleMolecule(Molecules.isAggregator)).asInstanceOf[Boolean])
 
-  private def mapping: py.Dynamic = partitioning match {
-    case IID => flUtils.iid_mapping(areas, classes)
-    case Hard => flUtils.hard_non_iid_mapping(areas, classes)
-    case Dirichlet(beta) => flUtils.dirichlet_non_iid_mapping(areas, classes, beta)
+  private def partitions: py.Dynamic = partitioning match {
+    case IID =>
+      val mapping = flUtils.iid_mapping(areas, classes)
+      flUtils.partioniong(mapping, dataset)
+    case Hard =>
+      val mapping = flUtils.hard_non_iid_mapping(areas, classes)
+      flUtils.partioniong(mapping, dataset)
+    case Dirichlet(beta) =>
+      flUtils.dirichlet_partitioning(areas, classes, beta) // todo check params
   }
 
 }
