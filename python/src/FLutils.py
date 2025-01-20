@@ -73,7 +73,6 @@ def partitioning(distribution: np.ndarray, dataset: Dataset) -> dict[int, list[i
     partitions = { a: [] for a in range(areas) }
     for area in range(areas):
         elements_per_class_in_area = elements_per_class[area, :].tolist()
-        area_distribution = distribution[area, :]
         for c in sorted(class_to_indices.keys()):
             elements = min(elements_per_class_in_area[c], class_counts[c].item())
             selected_indices = random.sample(class_to_indices[c], elements)
