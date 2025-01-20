@@ -41,21 +41,14 @@ def average_weights(models, weigths):
         w_avg[key] = torch.div(w_avg[key], sum_weights)
     return w_avg
 
-
 def hard_non_iid_mapping(areas: int, labels: int) -> np.ndarray:
     labels_set = np.arange(labels)
     split_classes_per_area = np.array_split(labels_set, areas)
     distribution = np.zeros((areas, labels))
     for i, elems in enumerate(split_classes_per_area):
         rows = [i for _ in elems]
-        distribution[rows, elems] = 1
+        distribution[rows, elems] = 1 / len(elems)
     return distribution
-
-
-def dirichlet_non_iid_mapping(areas: int, labels: int, beta: float) -> np.ndarray:
-    alpha = np.full(labels, beta)
-    sample = np.random.dirichlet(alpha, areas)
-    return sample
 
 def iid_mapping(areas: int, labels: int) -> np.ndarray:
     percentage = 1 / labels
@@ -68,18 +61,54 @@ def partitioning(distribution: np.ndarray, dataset: Dataset) -> dict[int, list[i
     areas = distribution.shape[0]
     targets_cardinality = distribution.shape[1]
     class_counts = torch.bincount(targets)
-    partitions = {}
+    class_to_indices = {}
+    for index in range(len(dataset)):
+        c = targets[index].item()
+        if c in class_to_indices:
+            class_to_indices[c].append(index)
+        else:
+            class_to_indices[c] = [index]
+    max_examples_per_area = int(math.floor(len(indices) / areas))
+    elements_per_class =  torch.floor(torch.tensor(distribution) * max_examples_per_area).to(torch.int)
+    partitions = { a: [] for a in range(areas) }
     for area in range(areas):
+        elements_per_class_in_area = elements_per_class[area, :].tolist()
         area_distribution = distribution[area, :]
-        elements_per_class = torch.tensor(area_distribution) * class_counts
-        elements_per_class = torch.floor(elements_per_class).to(torch.int)
-        selected_indices = []
-        for label in range(targets_cardinality):
-            target_indices = torch.where(targets == label)[0]
-            selected_count = min(len(target_indices), elements_per_class[label].item())
-            if selected_count > 0:
-                selected_indices.extend(target_indices[:selected_count].tolist())
-        partitions[area] = selected_indices
+        for c in sorted(class_to_indices.keys()):
+            elements = min(elements_per_class_in_area[c], class_counts[c].item())
+            selected_indices = random.sample(class_to_indices[c], elements)
+            partitions[area].extend(selected_indices)
+    return partitions
+
+def dirichlet_partitioning(data: Dataset, areas: int, beta: float) -> dict[int, list[int]]:
+    # Implemented as in: https://proceedings.mlr.press/v97/yurochkin19a.html
+    min_size = 0
+    # indices = data.indices
+    targets = dataset.targets
+    N = len(dataset)
+    class_to_indices = {}
+    for index in range(N):
+        c = targets[index].item()
+        if c in class_to_indices:
+            class_to_indices[c].append(index)
+        else:
+            class_to_indices[c] = [index]
+    partitions = {a: [] for a in range(areas)}
+    while min_size < 10:
+        idx_batch = [[] for _ in range(areas)]
+        for k in sorted(class_to_indices.keys()):
+            idx_k = class_to_indices[k]
+            np.random.shuffle(idx_k)
+            proportions = np.random.dirichlet(np.repeat(beta, areas))
+            ## Balance
+            proportions = np.array([p * (len(idx_j) < N / areas) for p, idx_j in zip(proportions, idx_batch)])
+            proportions = proportions / proportions.sum()
+            proportions = (np.cumsum(proportions) * len(idx_k)).astype(int)[:-1]
+            idx_batch = [idx_j + idx.tolist() for idx_j, idx in zip(idx_batch, np.split(idx_k, proportions))]
+            min_size = min([len(idx_j) for idx_j in idx_batch])
+    for j in range(areas):
+        np.random.shuffle(idx_batch[j])
+        partitions[j] = idx_batch[j]
     return partitions
 
 def get_dataset(name: str, train: bool = True) -> Dataset:
