@@ -173,10 +173,12 @@ def seed_everything(seed):
     torch.cuda.manual_seed(seed)
 
 def instantiate_model(model_weights, experiment: str, from_weights: bool = True):
-    if experiment == 'MNIST':
+    if experiment == 'MNIST' or experiment == 'FashionMNIST':
         model = NNMnist()
-        if from_weights:
-            model.load_state_dict(model_weights)
-        return model
+    elif experiment == 'EMNIST':
+        model = NNMnist(output_size=27)
     else:
         raise Exception(f'Wrong experiment name ({experiment})! Please check :)')
+    if from_weights:
+        model.load_state_dict(model_weights)
+    return model
