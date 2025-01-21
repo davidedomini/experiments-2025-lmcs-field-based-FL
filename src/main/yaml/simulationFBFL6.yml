@@ -120,12 +120,12 @@ deployments:
 
 terminate:
   type: AfterTime
-  parameters: 20
+  parameters: 30
 
 export:
   - type: CSVExporter
     parameters:
-      fileNameRoot: "experiment"
+      fileNameRoot: "experiment_areas-6"
       interval: 1.0
       exportPath: "data"
     data:
