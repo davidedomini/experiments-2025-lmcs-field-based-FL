@@ -113,7 +113,13 @@ def get_dataset(name: str, train: bool = True) -> Dataset:
     transform = transforms.Compose([transforms.ToTensor()])
     if name == 'MNIST':
         dataset = datasets.MNIST(root='data', train=train, download=True, transform=transform)
-        return dataset
+    elif name == 'EMNIST':
+        dataset = datasets.EMNIST(root='dataset', split = 'letters', train=train, download=True, transform=transform)
+    elif name == 'FashionMNIST':
+        dataset = datasets.FashionMNIST(root='dataset', train=train, download=True, transform=transform)
+    else:
+        raise Exception(f'Dataset {name} not supported! Please check :)')
+    return dataset
 
 def to_subset(dataset, indexes):
     return Subset(dataset, indexes)
