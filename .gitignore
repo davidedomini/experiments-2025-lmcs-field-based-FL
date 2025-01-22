@@ -9,3 +9,4 @@ timeprocessed
 env/
 python/src/__pycache__/
 python/dist/
+dataset/
