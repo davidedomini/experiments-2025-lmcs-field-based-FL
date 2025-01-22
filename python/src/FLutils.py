@@ -1,4 +1,5 @@
 import copy
+import math
 import torch
 import random
 import numpy as np
@@ -67,7 +68,7 @@ def partitioning(distribution: np.ndarray, dataset: Dataset) -> dict[int, list[i
             class_to_indices[c].append(index)
         else:
             class_to_indices[c] = [index]
-    max_examples_per_area = int(math.floor(len(indices) / areas))
+    max_examples_per_area = int(math.floor(len(dataset) / areas))
     elements_per_class =  torch.floor(torch.tensor(distribution) * max_examples_per_area).to(torch.int)
     partitions = { a: [] for a in range(areas) }
     for area in range(areas):
