@@ -112,7 +112,7 @@ def dirichlet_partitioning(dataset: Dataset, areas: int, beta: float) -> dict[in
 def get_dataset(name: str, train: bool = True) -> Dataset:
     transform = transforms.Compose([transforms.ToTensor()])
     if name == 'MNIST':
-        dataset = datasets.MNIST(root='data', train=train, download=True, transform=transform)
+        dataset = datasets.MNIST(root='dataset', train=train, download=True, transform=transform)
     elif name == 'EMNIST':
         dataset = datasets.EMNIST(root='dataset', split = 'letters', train=train, download=True, transform=transform)
     elif name == 'FashionMNIST':
