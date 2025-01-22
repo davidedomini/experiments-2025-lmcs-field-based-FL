@@ -91,10 +91,10 @@ class PhenomenaDistribution[P <: Position[P]](
   private def partitions: py.Dynamic = partitioning match {
     case IID =>
       val mapping = flUtils.iid_mapping(areas, classes)
-      flUtils.partioniong(mapping, dataset)
+      flUtils.partitioning(mapping, dataset)
     case Hard =>
       val mapping = flUtils.hard_non_iid_mapping(areas, classes)
-      flUtils.partioniong(mapping, dataset)
+      flUtils.partitioning(mapping, dataset)
     case Dirichlet(beta) =>
       flUtils.dirichlet_partitioning(dataset, areas, beta)
   }
