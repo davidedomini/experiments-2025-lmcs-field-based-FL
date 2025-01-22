@@ -83,7 +83,7 @@ environment:
         type: Trigger
         parameters: [ 5.5 ]
       type: KillRandomLeader
-      parameters: [ *seed, true ]
+      parameters: [ *seed, 2 ]
 
 monitors:
   - type: it.unibo.alchemist.model.monitors.DecentralizedTestSetEvaluation
@@ -119,12 +119,12 @@ deployments:
 
 terminate:
   type: AfterTime
-  parameters: 20
+  parameters: 30
 
 export:
   - type: CSVExporter
     parameters:
-      fileNameRoot: "experiment"
+      fileNameRoot: "experiment-catastrophic-failure"
       interval: 1.0
       exportPath: "data"
     data:

@@ -10,19 +10,22 @@ class KillRandomLeader[T, P <: Position[P]](
   environment: Environment[T, P],
   timeDistribution: TimeDistribution[T],
   seed: Int,
-  resilience: Boolean
+  toKill: Int
 ) extends AbstractGlobalReaction(environment, timeDistribution){
 
   private val random = new Random(seed)
   private var executed = false
 
   override protected def executeBeforeUpdateDistribution(): Unit = {
-      if (resilience && !executed) {
+      if (!executed) {
         executed = true
         val leaders = findLeaders(environment)
-        val toBeKilled = random.shuffle(leaders).head
-        println(s"[DEBUG] killing node ${toBeKilled.getId}")
-        environment.getSimulation.schedule(() => environment.removeNode(toBeKilled))
+        val toBeKilled = random.shuffle(leaders).take(toKill)
+        toBeKilled.foreach {
+          killing =>
+            println(s"[DEBUG] killing node ${killing.getId}")
+            environment.getSimulation.schedule(() => environment.removeNode(killing))
+        }
       }
   }
 
