@@ -39,8 +39,14 @@ class DecentralizedTestSetEvaluation [P <: Position[P]](
       .map { result => py"$result[1]".as[Double] }
     TestDataExporter.CSVExport(
       testAccuracies,
-      s"data/test-FBFL-${experiment}_seed-${seed}_areas-$areas"
+      s"data/test-FBFL-${experiment}_seed-${seed}_areas-${areas}_partitioning-${getPartitioning(partitioning)}"
     )
+  }
+
+  private def getPartitioning(partitioning: Partitioning):String = partitioning match {
+    case IID => "IID"
+    case Hard => "Hard"
+    case Dirichlet(beta) => s"Dirichlet-$beta"
   }
 
   private def findLeaders(environment: Environment[Any, P]): List[Node[Any]] =
