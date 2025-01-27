@@ -183,3 +183,7 @@ def instantiate_model(model_weights, experiment: str, from_weights: bool = True)
     if from_weights:
         model.load_state_dict(model_weights)
     return model
+
+
+def dataset_stats(data):
+    return len(data)

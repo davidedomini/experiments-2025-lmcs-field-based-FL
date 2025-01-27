@@ -6,7 +6,7 @@ _constants:
 variables:
   seed: &seed
     min: 0
-    max: 1
+    max: 4
     step: 1
     default: 0
   spacing: &spacing
@@ -20,10 +20,10 @@ variables:
   partitioning: &partitioning
     language: scala
     formula: |
-      import it.unibo.learning.model.Dirichlet
-      Dirichlet(0.5)
+      import it.unibo.learning.model.IID
+      IID
   experiment: &experiment
-    formula: "\"MNIST\""
+    formula: "\"EMNIST\""
   experimentMolecule: &experimentMolecule
     language: scala
     formula: >
@@ -115,7 +115,7 @@ terminate:
 export:
   - type: CSVExporter
     parameters:
-      fileNameRoot: "experiment_areas-3_dataset-MNIST_dir"
+      fileNameRoot: "experiment_areas-3_dataset-EMNIST_partitioning-IID"
       interval: 1.0
       exportPath: "data"
     data:

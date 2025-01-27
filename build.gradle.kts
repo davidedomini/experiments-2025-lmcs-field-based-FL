@@ -162,7 +162,18 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
             File("data").mkdirs()
             args(
                 "--verbosity",
-                "error"
+                "error",
+                "--override",
+                """
+                launcher: {
+                    parameters: {
+                        batch: [ seed ],
+                        showProgress: true,
+                        autoStart: true,
+                        parallelism: 1,
+                    }
+                }
+            """.trimIndent()
             )
         }
         runAllBatch.dependsOn(batch)
