@@ -25,7 +25,7 @@ class FBFLClient
   private lazy val epochs = sense[Int](Molecules.epochs)
   private lazy val batchSize = sense[Int](Molecules.batchSize)
   private lazy val experiment = sense[String](Molecules.experiment)
-  private val radius = 3.0
+  private val radius = 4.5
   private val impulsesEvery = 5
 
   private type NeuralNetwork = py.Dynamic
@@ -52,6 +52,8 @@ class FBFLClient
       node.put(Molecules.isAggregator, aggregators)
       node.put(Molecules.localModel, localModel)
       node.put(Molecules.areaId, data.areaId)
+      node.put("Training set size", flUtils.dataset_stats(trainingData).as[Double])
+
 
       // SCR Updates
       val potential = classicGradient(aggregators)
