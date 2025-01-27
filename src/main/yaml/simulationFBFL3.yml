@@ -100,11 +100,11 @@ deployments:
     contents: *molecules
     programs: *gradient
   - type: Grid # Center
-    parameters: [ 1.1, 2, 2, 5, *spacing, *spacing, *error, *error ]
+    parameters: [ 1.1, 2, 2, 6, *spacing, *spacing, *error, *error ]
     contents: *molecules
     programs: *gradient
   - type: Grid # Right
-    parameters: [ 8, 4, 10, 7, *spacing, *spacing, *error, *error ]
+    parameters: [ 8, 4, 10, 6, *spacing, *spacing, *error, *error ]
     contents: *molecules
     programs: *gradient
 
@@ -115,7 +115,7 @@ terminate:
 export:
   - type: CSVExporter
     parameters:
-      fileNameRoot: "experiment_areas-3"
+      fileNameRoot: "experiment_areas-3_dataset-MNIST_dir"
       interval: 1.0
       exportPath: "data"
     data:
